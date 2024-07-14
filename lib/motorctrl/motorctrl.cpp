@@ -7,7 +7,7 @@ static constexpr bool accel_reversed = false;       // set the corresponding boo
 static constexpr bool steering_reversed = false;    // you can also just rewire the motors
 
 static constexpr int min_pwm_steer = 0;             // minimum pwm value for steering
-static constexpr int max_pwm_steer = 200;           // maximum pwm value for steering
+static constexpr int max_pwm_steer = 130;           // maximum pwm value for steering
 static constexpr int min_pwm_drive = 60;             // minimum pwm value for driving
 static constexpr int max_pwm_drive = 200;           // maximum pwm value for driving
 
@@ -20,6 +20,9 @@ static constexpr long int max_reverse_time = 110000; // max time needed to stop 
 
 
 void accel(int pwm_pin, int reverse_pin, int throttle, bool reversed) { // control the accelerating motor
+    if(accel_reversed) {
+        reversed ^= 1;
+    }
     drive_reverse(reverse_pin, pwm_pin, drive_pwm, reversed);
 
     if (throttle <= 1000) {
@@ -35,11 +38,19 @@ void accel(int pwm_pin, int reverse_pin, int throttle, bool reversed) { // contr
 void steer(int pwm_pin, int reverse_pin, int deflection) { // control the steering motor
     if(deflection > 1550){
         steer_pwm = map(deflection, 1550, 2011, min_pwm_steer, max_pwm_steer);
-        digitalWrite(reverse_pin, LOW);
+        if(steering_reversed){
+            digitalWrite(reverse_pin, 1);
+        } else {
+            digitalWrite(reverse_pin, 0);
+        }
         analogWrite(pwm_pin, steer_pwm);
     } else if(deflection < 1450) {
         steer_pwm = map(deflection, 1450, 990, min_pwm_steer, max_pwm_steer);
-        digitalWrite(reverse_pin, HIGH);
+        if(steering_reversed) {
+            digitalWrite(reverse_pin, 0);
+        } else {
+            digitalWrite(reverse_pin, 1);
+        }
         analogWrite(pwm_pin, steer_pwm);
     } else {
         steer_pwm = 0;
