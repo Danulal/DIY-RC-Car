@@ -11,12 +11,12 @@ static constexpr int max_pwm_steer = 130;           // maximum pwm value for ste
 static constexpr int min_pwm_drive = 60;             // minimum pwm value for driving
 static constexpr int max_pwm_drive = 200;           // maximum pwm value for driving
 
-unsigned long start_millis = 0; // variables needed for the timer in drive_reverse()
-unsigned long current_millis = 0;
-unsigned long millis_delay; 
+unsigned long start_millis_motor = 0; // variables needed for the timer in drive_reverse()
+unsigned long current_millis_motor = 0;
+unsigned long millis_delay_motor; 
 bool already_reversed = false;
 bool currently_paused = false;
-static constexpr long int max_reverse_time = 110000; // max time needed to stop motor for a reverse
+static constexpr long int max_reverse_time = 1720; // max time needed to stop motor for a reverse in ms
 
 
 void accel(int pwm_pin, int reverse_pin, int throttle, bool reversed) { // control the accelerating motor
@@ -60,29 +60,29 @@ void steer(int pwm_pin, int reverse_pin, int deflection) { // control the steeri
 
 
 void drive_reverse(int reverse_pin, int pwm_pin, int current_pwm, bool reversed) {
-    if (current_millis == 0){
-        start_millis = millis();
+    if (current_millis_motor == 0){
+        start_millis_motor = millis();
     }
-    current_millis = millis();
-    millis_delay = map(current_pwm, 0, 255, 0, max_reverse_time);
+    current_millis_motor = millis();
+    millis_delay_motor = map(current_pwm, 0, 255, 0, max_reverse_time * 64); // *64 to adjust for the increased frequency of timer0
 
-    // Serial.print("current_millis: "); // timer debug
-    // Serial.print(current_millis);
+    // Serial.print("current_millis_motor: "); // timer debug
+    // Serial.print(current_millis_motor);
     // Serial.print("\t");
-    // Serial.print("start_millis: ");
-    // Serial.print(start_millis);
+    // Serial.print("start_millis_motor: ");
+    // Serial.print(start_millis_motor);
     // Serial.print("\t");
     // Serial.print("actual millis: ");
     // Serial.print(millis());
     // Serial.print("\t");
-    // Serial.print("millis_delay: ");
-    // Serial.print(millis_delay);
+    // Serial.print("millis_delay_motor: ");
+    // Serial.print(millis_delay_motor);
     // Serial.print("\n");
 
         if(reversed && !already_reversed) {
             currently_paused = true;
             analogWrite(pwm_pin, 0);
-            if(current_millis - start_millis >= millis_delay) { // code that executes after calculated delay (from motor speed)
+            if(current_millis_motor - start_millis_motor >= millis_delay_motor) { // code that executes after calculated delay (from motor speed)
                 digitalWrite(reverse_pin, 1);
                 already_reversed = true;
                 currently_paused = false;
@@ -91,14 +91,14 @@ void drive_reverse(int reverse_pin, int pwm_pin, int current_pwm, bool reversed)
         } else if(!reversed && already_reversed) {
             currently_paused = true;
             analogWrite(pwm_pin, 0);
-            if(current_millis - start_millis >= millis_delay) { // code that executes after calculated delay (from motor speed)
+            if(current_millis_motor - start_millis_motor >= millis_delay_motor) { // code that executes after calculated delay (from motor speed)
                 digitalWrite(reverse_pin, 0);
                 already_reversed = false;
                 currently_paused = false;
                 // Serial.println("Reversed2"); // timer debug
             }
         } else {
-            start_millis = current_millis; 
+            start_millis_motor = current_millis_motor; 
             currently_paused = false; // unpauses the motor when the reverse switch is flicked on and off too quickly
         }
     
