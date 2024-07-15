@@ -7,7 +7,7 @@ static constexpr int PWM_STEER = 5; // define arduino pins
 static constexpr int PWM_ACCEL = 6;
 static constexpr int STEER_REVERSE = 7;
 static constexpr int ACCEL_REVERSE = 10;  
-// static constexpr int LED = ?;
+static constexpr int LED = 9;
 
 static constexpr int CH_STEER = 1; // define elrs receiver channels       
 static constexpr int CH_THROTTLE = 3;
@@ -16,10 +16,16 @@ static constexpr int CH_ARM = 6;
 static constexpr int CH_BRAKE = 9;
 static constexpr int CH_LED = 8;
 
+static constexpr int BATT_PIN = A5; // define pin for battery sense 
+
+static constexpr float BATT_MIN_VOLTAGE=6.6; // battery minimum voltage before shutoff for battery safety
+
 int throttle;
 int steering_deflection;
 bool armed;
 bool reversed;
+int batt_v_int; // battery voltage as an integer
+float batt_v_float; // battery voltage as a float;
 
 void setup() {
   pinMode(PWM_STEER, OUTPUT); // set output pins
@@ -38,6 +44,9 @@ TCCR0B = TCCR0B & B11111000 | B00000001;    // set timer 0 divisor to     1 for 
 }
 
 void loop() {
+  batt_v_int = round(map(analogRead(BATT_PIN), 0, 1023, 0, 500) * 1.755); // read, calculate and round battery voltage (through a voltage divider)
+  batt_v_float = batt_v_int/100.0; // convert voltage to a float
+
   update_elrs(); // Must call update_elrs() in loop() to process data
   throttle = readCH(CH_THROTTLE);
   steering_deflection = readCH(CH_STEER);
