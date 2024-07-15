@@ -13,8 +13,8 @@ static constexpr int CH_STEER = 1; // define elrs receiver channels
 static constexpr int CH_THROTTLE = 3;
 static constexpr int CH_REVERSE = 10;
 static constexpr int CH_ARM = 6;
-static constexpr int CH_BRAKE = 9;
 static constexpr int CH_LED = 8;
+static constexpr long elrs_timeout = 1500; // elrs timeout in ms
 
 static constexpr int BATT_PIN = A5; // define pin for battery sense 
 
@@ -23,6 +23,7 @@ static constexpr float BATT_MIN_VOLTAGE=6.6; // battery minimum voltage before s
 int throttle;
 int steering_deflection;
 bool armed;
+bool elrs_connected;
 bool reversed;
 int batt_v_int; // battery voltage as an integer
 float batt_v_float; // battery voltage as a float;
@@ -44,13 +45,37 @@ TCCR0B = TCCR0B & B11111000 | B00000001;    // set timer 0 divisor to     1 for 
 }
 
 void loop() {
+  update_elrs(); // Must call update_elrs() in loop() to process data
+  elrs_connected = is_elrs_link_up(elrs_timeout * 64); // *64 to adjust for the increased frequency of timer0
+
   batt_v_int = round(map(analogRead(BATT_PIN), 0, 1023, 0, 500) * 1.755); // read, calculate and round battery voltage (through a voltage divider)
   batt_v_float = batt_v_int/100.0; // convert voltage to a float
 
-  update_elrs(); // Must call update_elrs() in loop() to process data
-  throttle = readCH(CH_THROTTLE);
-  steering_deflection = readCH(CH_STEER);
+  if(!elrs_connected) {
+    // Serial.println("elrs NOT connected");
+    return;
+  }
+
+  // Serial.println("elrs YES connected");
+
+  
+  // todo battery telemetry here
+
+  if(batt_v_float <= BATT_MIN_VOLTAGE){
+    return;
+  }
+
   armed = elrs_2way_switch(CH_ARM);
+
+  if(!armed) {
+    return;
+  }
+
+  // code after here only executes if elrs is connected & battery voltage is above minimum & the arm switch has been activated
+  // this is where the main code should go
+
+  throttle = readCH(CH_THROTTLE); 
+  steering_deflection = readCH(CH_STEER);
   reversed = elrs_2way_switch(CH_REVERSE);
 
   // printChannels();
