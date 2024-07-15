@@ -51,15 +51,18 @@ void loop() {
   batt_v_int = round(map(analogRead(BATT_PIN), 0, 1023, 0, 500) * 1.755); // read, calculate and round battery voltage (through a voltage divider)
   batt_v_float = batt_v_int/100.0; // convert voltage to a float
 
+  // Serial.print("int: ");
+  // Serial.print(batt_v_int);
+  // Serial.print("\t float");
+  // Serial.print(batt_v_float);
+  // Serial.print("\n");
+
   if(!elrs_connected) {
-    // Serial.println("elrs NOT connected");
     return;
   }
 
-  // Serial.println("elrs YES connected");
+  batt_telemetry(batt_v_float);
 
-  
-  // todo battery telemetry here
 
   if(batt_v_float <= BATT_MIN_VOLTAGE){
     return;

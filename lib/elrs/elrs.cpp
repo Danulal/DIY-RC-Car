@@ -30,18 +30,6 @@ bool elrs_2way_switch(int CH) { // function to get a bool from a 2 way switch
     }
 }
 
-void printChannels() { // debug for printing out all channels of radiomaster zorro (14 channels active)
-    for (int ChannelNum = 1; ChannelNum <= 14; ChannelNum++)
-    {
-        Serial.print(ChannelNum);
-        Serial.print(": ");
-        Serial.print(readCH(ChannelNum));
-        Serial.print(", ");
-    }
-    Serial.print(", ");
-    Serial.println(" ");
-}
-
 unsigned long start_millis_elrs = 0; // variables needed for the timer in is_elrs_link_up()
 unsigned long current_millis_elrs = 0;
 bool previous_link_state = 0;
@@ -74,4 +62,26 @@ bool is_elrs_link_up(unsigned long timeout) {
     }
 
     return previous_link_state;
+}
+
+crsf_sensor_battery_t crsfBatt = { 0 };
+
+void batt_telemetry(float voltage) {
+    // Values are MSB first (BigEndian)
+    crsfBatt.voltage = htobe16((uint16_t)(voltage * 10.0));   //Volts
+    // crsfBatt.voltage = (uint16_t)(voltage * 10.0);   //Volts
+
+    crsf.queuePacket(CRSF_SYNC_BYTE, CRSF_FRAMETYPE_BATTERY_SENSOR, &crsfBatt, sizeof(crsfBatt));
+}
+
+void printChannels() { // debug for printing out all channels of radiomaster zorro (14 channels active)
+    for (int ChannelNum = 1; ChannelNum <= 14; ChannelNum++)
+    {
+        Serial.print(ChannelNum);
+        Serial.print(": ");
+        Serial.print(readCH(ChannelNum));
+        Serial.print(", ");
+    }
+    Serial.print(", ");
+    Serial.println(" ");
 }
