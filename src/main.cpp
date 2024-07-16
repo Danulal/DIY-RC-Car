@@ -33,6 +33,7 @@ void setup() {
   pinMode(PWM_ACCEL, OUTPUT);
   pinMode(STEER_REVERSE, OUTPUT);
   pinMode(ACCEL_REVERSE, OUTPUT);
+  pinMode(LED, OUTPUT);
   init_elrs(115200); // initialise crsf connection with baudrate 115200
 
 //---------------------------------------------- Set PWM frequency for D5 & D6 -------------------------------
@@ -66,6 +67,13 @@ void loop() {
 
   if(batt_v_float <= BATT_MIN_VOLTAGE){
     return;
+  }
+
+
+  if(elrs_2way_switch(CH_LED)){
+    digitalWrite(LED, 1);
+  } else {
+    digitalWrite(LED, 0);
   }
 
   armed = elrs_2way_switch(CH_ARM);

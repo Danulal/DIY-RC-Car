@@ -23,7 +23,7 @@ int readCH(int CH) { // wrapper to read a Channel
 }
 
 bool elrs_2way_switch(int CH) { // function to get a bool from a 2 way switch
-    if(readCH(CH) >= 2000) {
+    if(readCH(CH) >= 1500) {
         return true;
     } else {
         return false;
