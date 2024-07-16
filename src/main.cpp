@@ -59,6 +59,7 @@ void loop() {
   // Serial.print("\n");
 
   if(!elrs_connected) {
+    stop(PWM_STEER, PWM_ACCEL);
     return;
   }
 
@@ -66,6 +67,7 @@ void loop() {
 
 
   if(batt_v_float <= BATT_MIN_VOLTAGE){
+    stop(PWM_STEER, PWM_ACCEL);
     return;
   }
 
@@ -79,6 +81,7 @@ void loop() {
   armed = elrs_2way_switch(CH_ARM);
 
   if(!armed) {
+    stop(PWM_STEER, PWM_ACCEL);
     return;
   }
 

@@ -100,6 +100,10 @@ void drive_reverse(int reverse_pin, int pwm_pin, int current_pwm, bool reversed)
         } else {
             start_millis_motor = current_millis_motor; 
             currently_paused = false; // unpauses the motor when the reverse switch is flicked on and off too quickly
-        }
-    
+        }    
+}
+
+void stop(int steer_pwm_pin, int drive_pwm_pin) {
+    steer(steer_pwm_pin, 0, 1500);
+    accel(drive_pwm_pin, 0, 0, false);
 }
