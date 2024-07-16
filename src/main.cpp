@@ -14,6 +14,7 @@ static constexpr int CH_THROTTLE = 3;
 static constexpr int CH_REVERSE = 10;
 static constexpr int CH_ARM = 6;
 static constexpr int CH_LED = 8;
+static constexpr int CH_QUICK_REVERSE = 9;
 static constexpr long elrs_timeout = 1500; // elrs timeout in ms
 
 static constexpr int BATT_PIN = A5; // define pin for battery sense 
@@ -25,6 +26,7 @@ int steering_deflection;
 bool armed;
 bool elrs_connected;
 bool reversed;
+bool quickreverse;
 int batt_v_int; // battery voltage as an integer
 float batt_v_float; // battery voltage as a float;
 
@@ -65,7 +67,6 @@ void loop() {
 
   batt_telemetry(batt_v_float);
 
-
   if(batt_v_float <= BATT_MIN_VOLTAGE){
     stop(PWM_STEER, PWM_ACCEL);
     return;
@@ -91,9 +92,10 @@ void loop() {
   throttle = readCH(CH_THROTTLE); 
   steering_deflection = readCH(CH_STEER);
   reversed = elrs_2way_switch(CH_REVERSE);
+  quickreverse = elrs_2way_switch(CH_QUICK_REVERSE);
 
   // printChannels();
 
   steer(PWM_STEER, STEER_REVERSE, steering_deflection);
-  accel(PWM_ACCEL, ACCEL_REVERSE, throttle, reversed);
+  accel(PWM_ACCEL, ACCEL_REVERSE, throttle, reversed, quickreverse);
 }
