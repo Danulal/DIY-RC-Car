@@ -36,16 +36,6 @@ bool previous_link_state = 0;
 
 bool is_elrs_link_up(unsigned long timeout) {
 
-    // Serial.print("isLinkUp: "); // timer debug
-    // Serial.print(crsf.isLinkUp());
-    // Serial.print("\tprevious link state: ");
-    // Serial.print(previous_link_state);
-    // Serial.print("\tcurrent_millis: ");
-    // Serial.print(current_millis_elrs);
-    // Serial.print("\tstart_millis: ");
-    // Serial.print(start_millis_elrs);
-    // Serial.print("\n");
-
     current_millis_elrs = millis();
 
     if(crsf.isLinkUp() == 0 && previous_link_state == 1) {
@@ -69,7 +59,6 @@ crsf_sensor_battery_t crsfBatt = { 0 };
 void batt_telemetry(float voltage) {
     // Values are MSB first (BigEndian)
     crsfBatt.voltage = htobe16((uint16_t)(voltage * 10.0));   //Volts
-    // crsfBatt.voltage = (uint16_t)(voltage * 10.0);   //Volts
 
     crsf.queuePacket(CRSF_SYNC_BYTE, CRSF_FRAMETYPE_BATTERY_SENSOR, &crsfBatt, sizeof(crsfBatt));
 }
